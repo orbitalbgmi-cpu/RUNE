@@ -18,7 +18,7 @@
             <DockPanel LastChildFill="True" Margin="0,0,0,16">
 
                 <StackPanel DockPanel.Dock="Top" Margin="20,24,20,24">
-                    <TextBlock Text="RUNE" FontSize="22" FontWeight="Bold"
+                    <TextBlock Text="ArloLumen" FontSize="22" FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryTextBrush}" />
                     <TextBlock Text="AI Assistant Frame" FontSize="11"
                                Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,2,0,0" />
