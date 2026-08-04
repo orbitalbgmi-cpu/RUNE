@@ -7,6 +7,8 @@ namespace RUNE.Views
 {
     public partial class ChatView : UserControl
     {
+        private readonly LocalAiModule _ai = new RUNE.LocalAiModule();
+
         public ChatView()
         {
             InitializeComponent();
@@ -19,7 +21,7 @@ namespace RUNE.Views
             if (e.Key == Key.Enter) SendMessage();
         }
 
-        private void SendMessage()
+        private async void SendMessage()
         {
             var text = InputBox.Text?.Trim();
             if (string.IsNullOrEmpty(text)) return;
@@ -27,7 +29,11 @@ namespace RUNE.Views
             AddMessage("You", text);
             InputBox.Clear();
 
-            AddMessage("RUNE", "(no AI model connected yet - this is just the UI frame)");
+            AddMessage("RUNE", "thinking...");
+            var reply = await _ai.AskAsync(text);
+
+            MessageList.Children.RemoveAt(MessageList.Children.Count - 1);
+            AddMessage("RUNE", reply);
         }
 
         private void AddMessage(string sender, string text)
