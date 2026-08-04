@@ -14,7 +14,7 @@ namespace RUNE
         private bool _isLoaded;
 
         private static string ModelPath =>
-            Path.Combine(AppContext.BaseDirectory, "models", "qwen2.5-0.5b-instruct-q4_k_m.gguf");
+            Path.Combine(AppContext.BaseDirectory, "models", "Ember", "qwen2.5-0.5b-instruct-q4_k_m.gguf");
 
         public bool Load()
         {
@@ -32,7 +32,7 @@ namespace RUNE
         public async Task<string> AskAsync(string userMessage)
         {
             if (!_isLoaded && !Load())
-                return "(model file not found in the models folder)";
+                return "(Ember model file not found in models/Ember/ - make sure it's copied there)";
 
             var prompt = $"<|im_start|>user\n{userMessage}<|im_end|>\n<|im_start|>assistant\n";
             var inferenceParams = new InferenceParams { MaxTokens = 200 };
