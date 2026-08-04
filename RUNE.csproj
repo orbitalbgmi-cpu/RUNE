@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net48</TargetFramework><RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <TargetFramework>net48</TargetFramework>
+<RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>false</SelfContained>
     <UseWPF>true</UseWPF>
     <LangVersion>latest</LangVersion>
