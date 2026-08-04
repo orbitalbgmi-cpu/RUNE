@@ -15,7 +15,7 @@ jobs:
         with:
           dotnet-version: '8.0.x'
       - name: Restore
-        run: dotnet restore RUNE.csproj
+        run: dotnet restore RUNE.csproj -r win-x64
       - name: Build and publish
         run: dotnet publish RUNE.csproj -c Release -r win-x64 --self-contained false -o publish
       - name: Upload built app
