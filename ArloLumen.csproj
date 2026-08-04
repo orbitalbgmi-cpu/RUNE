@@ -6,7 +6,7 @@
     <UseWPF>true</UseWPF>
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>
-    <AssemblyName>RUNE</AssemblyName>
+    <AssemblyName>ArloLumen</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
