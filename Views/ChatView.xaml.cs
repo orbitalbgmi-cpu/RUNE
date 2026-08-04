@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -7,7 +8,7 @@ namespace RUNE.Views
 {
     public partial class ChatView : UserControl
     {
-        private readonly LocalAiModule _ai = new RUNE.LocalAiModule();
+        private readonly RUNE.LocalAiModule _ai = new RUNE.LocalAiModule();
 
         public ChatView()
         {
@@ -30,7 +31,16 @@ namespace RUNE.Views
             InputBox.Clear();
 
             AddMessage("RUNE", "thinking...");
-            var reply = await _ai.AskAsync(text);
+
+            string reply;
+            try
+            {
+                reply = await _ai.AskAsync(text);
+            }
+            catch (Exception ex)
+            {
+                reply = "(error: " + ex.Message + ")";
+            }
 
             MessageList.Children.RemoveAt(MessageList.Children.Count - 1);
             AddMessage("RUNE", reply);
