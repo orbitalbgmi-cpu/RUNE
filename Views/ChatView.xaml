@@ -9,13 +9,21 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Chat" FontSize="20" FontWeight="Bold"
-                   Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,16" />
-<ComboBox Grid.Row="0" HorizontalAlignment="Right" Width="140" Margin="0,0,0,16"
-          SelectedIndex="0">
-    <ComboBoxItem Content="Ember" />
-    <ComboBoxItem Content="NOVA (soon)" IsEnabled="False" />
-</ComboBox>
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Text="Chat" FontSize="20" FontWeight="Bold"
+                       Foreground="{DynamicResource PrimaryTextBrush}" />
+
+            <ComboBox x:Name="ModelSelector" Grid.Column="1" Width="140" SelectedIndex="0">
+                <ComboBoxItem Content="Ember" />
+                <ComboBoxItem Content="NOVA (soon)" IsEnabled="False" />
+            </ComboBox>
+        </Grid>
+
         <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}"
                 BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8">
             <ScrollViewer Padding="16" VerticalScrollBarVisibility="Auto">
