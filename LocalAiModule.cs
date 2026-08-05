@@ -46,7 +46,17 @@ namespace RUNE
             {
                 result += text;
             }
-            return result.Trim();
+
+            return CleanUp(result);
+        }
+
+        private static string CleanUp(string text)
+        {
+            text = text.Replace("Ċ", "\n");
+            text = text.Replace("<|im_end|>", "");
+            text = text.Replace("<|im_start|>", "");
+            text = text.Replace("assistant", "");
+            return text.Trim();
         }
     }
 }
