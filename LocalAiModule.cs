@@ -34,7 +34,9 @@ namespace RUNE
             if (!_isLoaded && !Load())
                 return "(Ember model file not found in models/Ember/ - make sure it's copied there)";
 
-            var prompt = $"<|im_start|>user\n{userMessage}<|im_end|>\n<|im_start|>assistant\n";
+            var systemPrompt = "You are Ember, a helpful assistant. Always reply in English, in a friendly, concise way.";
+            var prompt = $"<|im_start|>system\n{systemPrompt}<|im_end|>\n<|im_start|>user\n{userMessage}<|im_end|>\n<|im_start|>assistant\n";
+
             var inferenceParams = new InferenceParams
             {
                 MaxTokens = 200,
