@@ -35,7 +35,11 @@ namespace RUNE
                 return "(Ember model file not found in models/Ember/ - make sure it's copied there)";
 
             var prompt = $"<|im_start|>user\n{userMessage}<|im_end|>\n<|im_start|>assistant\n";
-            var inferenceParams = new InferenceParams { MaxTokens = 200 };
+            var inferenceParams = new InferenceParams
+            {
+                MaxTokens = 200,
+                AntiPrompts = new System.Collections.Generic.List<string> { "<|im_end|>", "<|im_start|>", "You:" }
+            };
 
             var result = "";
             await foreach (var text in _executor.InferAsync(prompt, inferenceParams))
