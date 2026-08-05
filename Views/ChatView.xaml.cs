@@ -1,4 +1,3 @@
-using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -22,6 +21,16 @@ namespace RUNE.Views
             if (e.Key == Key.Enter) SendMessage();
         }
 
+        private string CurrentModelName
+        {
+            get
+            {
+                var selected = ModelSelector?.SelectedItem as ComboBoxItem;
+                var name = selected?.Content?.ToString() ?? "Ember";
+                return name.Replace(" (soon)", "");
+            }
+        }
+
         private async void SendMessage()
         {
             var text = InputBox.Text?.Trim();
@@ -30,20 +39,21 @@ namespace RUNE.Views
             AddMessage("You", text);
             InputBox.Clear();
 
-            AddMessage("RUNE", "thinking...");
+            var modelName = CurrentModelName;
+            AddMessage(modelName, "thinking...");
 
             string reply;
             try
             {
                 reply = await _ai.AskAsync(text);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 reply = "(error: " + ex.Message + ")";
             }
 
             MessageList.Children.RemoveAt(MessageList.Children.Count - 1);
-            AddMessage("RUNE", reply);
+            AddMessage(modelName, reply);
         }
 
         private void AddMessage(string sender, string text)
