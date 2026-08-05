@@ -15,9 +15,9 @@ jobs:
         with:
           dotnet-version: '8.0.x'
       - name: Restore
-        run: dotnet restore RUNE.csproj -r win-x64
+        run: dotnet restore RUNE.csproj
       - name: Build and publish
-        run: dotnet publish RUNE.csproj -c Release -r win-x64 --self-contained false -o publish
+        run: dotnet publish RUNE.csproj -c Release -o publish
       - name: Upload built app
         uses: actions/upload-artifact@v4
         with:
