@@ -39,7 +39,7 @@ namespace RUNE
 
             var inferenceParams = new InferenceParams
             {
-                MaxTokens = 200,
+                MaxTokens = 500,
                 AntiPrompts = new System.Collections.Generic.List<string> { "<|im_end|>", "<|im_start|>", "You:" }
             };
 
