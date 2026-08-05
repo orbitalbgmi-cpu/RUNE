@@ -28,7 +28,7 @@
                 BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8">
             <ScrollViewer Padding="16" VerticalScrollBarVisibility="Auto">
                 <StackPanel x:Name="MessageList">
-                    <TextBlock Text="RUNE isn't connected to a brain yet - this is just the chat frame."
+                    <TextBlock Text="RUNE is for legal use powerd by:Onyx."
                                Foreground="{DynamicResource SecondaryTextBrush}"
                                TextWrapping="Wrap" FontStyle="Italic" />
                 </StackPanel>
