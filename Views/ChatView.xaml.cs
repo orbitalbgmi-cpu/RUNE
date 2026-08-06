@@ -37,6 +37,7 @@ namespace RUNE.Views
             if (string.IsNullOrEmpty(text)) return;
 
             AddMessage("You", text);
+            RUNE.HistoryStore.Append("You", text);
             InputBox.Clear();
 
             var modelName = CurrentModelName;
@@ -54,6 +55,7 @@ namespace RUNE.Views
 
             MessageList.Children.RemoveAt(MessageList.Children.Count - 1);
             AddMessage(modelName, reply);
+            RUNE.HistoryStore.Append(modelName, reply);
         }
 
         private void AddMessage(string sender, string text)
