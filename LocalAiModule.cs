@@ -34,11 +34,12 @@ namespace RUNE
             if (!_isLoaded && !Load())
                 return "(Ember model file not found in models/Ember/ - make sure it's copied there)";
 
-            var systemPrompt = "You are Ember, a helpful assistant. Always reply in English, in a friendly, concise way.";
+            var systemPrompt = "You are Ember, a helpful assistant. Always reply in English, in a friendly, concise way. Never repeat words or phrases.";
 
             if (App.Config.IsModuleEnabled("web-search"))
             {
-                if (!WebSearchModule.IsInternetAvailable())
+                var hasInternet = await WebSearchModule.IsInternetAvailableAsync();
+                if (!hasInternet)
                 {
                     return "Internet is off, so I can't search right now. Turn on Web Search access in your network settings, or ask me something I might already know.";
                 }
@@ -46,7 +47,7 @@ namespace RUNE
                 var searchResult = await WebSearchModule.SearchAsync(userMessage);
                 if (!string.IsNullOrEmpty(searchResult))
                 {
-                    systemPrompt += " Use this extra information if it's relevant to the question: " + searchResult;
+                    systemPrompt += " Here is some extra information that may help, use it only if relevant: " + searchResult;
                 }
             }
 
@@ -54,7 +55,8 @@ namespace RUNE
 
             var inferenceParams = new InferenceParams
             {
-                MaxTokens = 500,
+                MaxTokens = 300,
+                RepeatPenalty = 1.3f,
                 AntiPrompts = new System.Collections.Generic.List<string> { "<|im_end|>", "<|im_start|>", "You:" }
             };
 
