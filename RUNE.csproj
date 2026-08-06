@@ -20,6 +20,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="$(NuGetPackageRoot)llamasharp.backend.cpu\0.15.0\runtimes\win-x64\native\avx\*.dll">
+      <Link>%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="config\**\*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>config\%(RecursiveDir)%(Filename)%(Extension)</Link>
