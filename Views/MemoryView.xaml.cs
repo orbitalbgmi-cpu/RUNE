@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -6,20 +7,22 @@ namespace RUNE.Views
 {
     public partial class MemoryView : UserControl
     {
+        public event Action<string> OpenSessionRequested;
+
         public MemoryView()
         {
             InitializeComponent();
-            Loaded += (s, e) => LoadHistory();
+            Loaded += (s, e) => LoadSessions();
         }
 
-        private void LoadHistory()
+        private void LoadSessions()
         {
-            HistoryList.Children.Clear();
-            var entries = RUNE.HistoryStore.LoadAll();
+            SessionList.Children.Clear();
+            var sessions = RUNE.HistoryStore.LoadAllSessions();
 
-            if (entries.Count == 0)
+            if (sessions.Count == 0)
             {
-                HistoryList.Children.Add(new TextBlock
+                SessionList.Children.Add(new TextBlock
                 {
                     Text = "No conversations saved yet - chat with Ember or NOVA to build up history here.",
                     Foreground = (Brush)FindResource("SecondaryTextBrush"),
@@ -29,30 +32,66 @@ namespace RUNE.Views
                 return;
             }
 
-            foreach (var entry in entries)
+            foreach (var session in sessions)
             {
-                var timestamp = new TextBlock
-                {
-                    Text = entry.Timestamp,
-                    FontSize = 10,
-                    Foreground = (Brush)FindResource("SecondaryTextBrush"),
-                    Margin = new Thickness(0, 8, 0, 2)
-                };
-                var message = new TextBlock
-                {
-                    Text = $"{entry.Sender}: {entry.Text}",
-                    TextWrapping = TextWrapping.Wrap,
-                    Foreground = (Brush)FindResource("PrimaryTextBrush")
-                };
-                HistoryList.Children.Add(timestamp);
-                HistoryList.Children.Add(message);
+                SessionList.Children.Add(BuildSessionRow(session));
             }
         }
 
-        private void ClearButton_Click(object sender, RoutedEventArgs e)
+        private Border BuildSessionRow(RUNE.ChatSession session)
         {
-            RUNE.HistoryStore.ClearAll();
-            LoadHistory();
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            var textPanel = new StackPanel { Cursor = System.Windows.Input.Cursors.Hand };
+            textPanel.Children.Add(new TextBlock
+            {
+                Text = session.Title,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = (Brush)FindResource("PrimaryTextBrush"),
+                TextWrapping = TextWrapping.Wrap
+            });
+            textPanel.Children.Add(new TextBlock
+            {
+                Text = session.CreatedAt + " - " + session.Messages.Count + " messages",
+                FontSize = 11,
+                Foreground = (Brush)FindResource("SecondaryTextBrush"),
+                Margin = new Thickness(0, 2, 0, 0)
+            });
+            textPanel.MouseLeftButtonUp += (s, e) => OpenSessionRequested?.Invoke(session.Id);
+
+            var deleteButton = new Button
+            {
+                Content = "Delete",
+                Padding = new Thickness(12, 6, 12, 6),
+                Background = (Brush)FindResource("SurfaceBrush"),
+                Foreground = (Brush)FindResource("SecondaryTextBrush"),
+                BorderBrush = (Brush)FindResource("BorderBrush"),
+                BorderThickness = new Thickness(1),
+                Cursor = System.Windows.Input.Cursors.Hand
+            };
+            deleteButton.Click += (s, e) =>
+            {
+                RUNE.HistoryStore.DeleteSession(session.Id);
+                LoadSessions();
+            };
+
+            Grid.SetColumn(textPanel, 0);
+            Grid.SetColumn(deleteButton, 1);
+            grid.Children.Add(textPanel);
+            grid.Children.Add(deleteButton);
+
+            return new Border
+            {
+                Background = (Brush)FindResource("SurfaceBrush"),
+                BorderBrush = (Brush)FindResource("BorderBrush"),
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(8),
+                Padding = new Thickness(16, 12, 16, 12),
+                Margin = new Thickness(0, 0, 0, 10),
+                Child = grid
+            };
         }
     }
 }
