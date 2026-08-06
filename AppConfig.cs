@@ -22,6 +22,7 @@ namespace RUNE
             { "memory", false },
             { "vision", false },
             { "automation", false },
+            { "web-search", false },
         };
 
         [JsonProperty("window")]
@@ -30,6 +31,12 @@ namespace RUNE
         public bool IsModuleEnabled(string moduleId)
         {
             return Modules.TryGetValue(moduleId, out var enabled) && enabled;
+        }
+
+        public void SetModuleEnabled(string moduleId, bool enabled)
+        {
+            Modules[moduleId] = enabled;
+            Save();
         }
 
         private static string ConfigPath =>
