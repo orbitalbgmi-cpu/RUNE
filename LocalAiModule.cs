@@ -35,6 +35,21 @@ namespace RUNE
                 return "(Ember model file not found in models/Ember/ - make sure it's copied there)";
 
             var systemPrompt = "You are Ember, a helpful assistant. Always reply in English, in a friendly, concise way.";
+
+            if (App.Config.IsModuleEnabled("web-search"))
+            {
+                if (!WebSearchModule.IsInternetAvailable())
+                {
+                    return "Internet is off, so I can't search right now. Turn on Web Search access in your network settings, or ask me something I might already know.";
+                }
+
+                var searchResult = await WebSearchModule.SearchAsync(userMessage);
+                if (!string.IsNullOrEmpty(searchResult))
+                {
+                    systemPrompt += " Use this extra information if it's relevant to the question: " + searchResult;
+                }
+            }
+
             var prompt = $"<|im_start|>system\n{systemPrompt}<|im_end|>\n<|im_start|>user\n{userMessage}<|im_end|>\n<|im_start|>assistant\n";
 
             var inferenceParams = new InferenceParams
