@@ -21,6 +21,12 @@ namespace RUNE
             Height = window.Height;
             if (window.Maximized) WindowState = WindowState.Maximized;
 
+            _memoryView.OpenSessionRequested += sessionId =>
+            {
+                _chatView.OpenSession(sessionId);
+                ShowView(_chatView, NavChatButton);
+            };
+
             ShowView(_chatView, NavChatButton);
 
             Closing += MainWindow_Closing;
