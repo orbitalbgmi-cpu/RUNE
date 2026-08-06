@@ -13,12 +13,19 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <TextBlock Grid.Column="0" Text="Chat" FontSize="20" FontWeight="Bold"
                        Foreground="{DynamicResource PrimaryTextBrush}" />
 
-            <ComboBox x:Name="ModelSelector" Grid.Column="1" Width="140" SelectedIndex="0">
+            <Button Grid.Column="1" Content="New Chat" Click="NewChatButton_Click"
+                    Background="{DynamicResource SurfaceBrush}"
+                    Foreground="{DynamicResource SecondaryTextBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                    Padding="14,8" Margin="0,0,10,0" Cursor="Hand" />
+
+            <ComboBox x:Name="ModelSelector" Grid.Column="2" Width="140" SelectedIndex="0">
                 <ComboBoxItem Content="Ember" />
                 <ComboBoxItem Content="NOVA (soon)" IsEnabled="False" />
             </ComboBox>
@@ -27,11 +34,7 @@
         <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}"
                 BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8">
             <ScrollViewer Padding="16" VerticalScrollBarVisibility="Auto">
-                <StackPanel x:Name="MessageList">
-                    <TextBlock Text="RUNE is for legal use powerd by:Onyx."
-                               Foreground="{DynamicResource SecondaryTextBrush}"
-                               TextWrapping="Wrap" FontStyle="Italic" />
-                </StackPanel>
+                <StackPanel x:Name="MessageList" />
             </ScrollViewer>
         </Border>
 
