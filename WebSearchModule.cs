@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -9,14 +10,20 @@ namespace RUNE
     public static class WebSearchModule
     {
         public static event Action<string> ActivityLogged;
-        private static readonly HttpClient _client = new HttpClient { Timeout = TimeSpan.FromSeconds(8) };
+        private static readonly HttpClient _client;
+
+        static WebSearchModule()
+        {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            _client = new HttpClient { Timeout = TimeSpan.FromSeconds(8) };
+        }
 
         public static async Task<bool> IsInternetAvailableAsync()
         {
             try
             {
-                var response = await _client.GetAsync("https://www.google.com/generate_204");
-                return response.IsSuccessStatusCode || (int)response.StatusCode == 204;
+                var response = await _client.GetAsync("https://api.duckduckgo.com/?q=test&format=json");
+                return response.IsSuccessStatusCode;
             }
             catch
             {
@@ -51,7 +58,7 @@ namespace RUNE
                     return cleaned;
                 }
 
-                Log("No usable result for this query - Ember will answer from its own knowledge");
+                Log("No usable result for this query");
                 return null;
             }
             catch (Exception ex)
@@ -64,17 +71,11 @@ namespace RUNE
         private static string Sanitize(string text)
         {
             if (string.IsNullOrWhiteSpace(text)) return null;
-
-            // Reject anything that looks like code/markup instead of plain text.
             if (text.Contains("<?php") || text.Contains("<html") || text.Contains("<script") || text.Contains("function("))
                 return null;
 
-            // Strip any stray HTML tags just in case.
             text = Regex.Replace(text, "<.*?>", "");
-
-            // Keep it short so it doesn't overwhelm Ember's small context window.
             if (text.Length > 300) text = text.Substring(0, 300);
-
             return text.Trim();
         }
 
