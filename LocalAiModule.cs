@@ -34,7 +34,7 @@ namespace RUNE
             if (!_isLoaded && !Load())
                 return "(Ember model file not found in models/Ember/ - make sure it's copied there)";
 
-            var systemPrompt = "You are Ember, a helpful assistant. Always reply in English, in a friendly, concise way. Never repeat words or phrases.";
+            var systemPrompt = "You are Ember, a helpful assistant. Always reply in English, in a friendly, concise way. Never repeat words or phrases. Never claim you searched the web or found something online unless real search results are given to you below.";
 
             if (App.Config.IsModuleEnabled("web-search"))
             {
@@ -47,7 +47,11 @@ namespace RUNE
                 var searchResult = await WebSearchModule.SearchAsync(userMessage);
                 if (!string.IsNullOrEmpty(searchResult))
                 {
-                    systemPrompt += " Here is some extra information that may help, use it only if relevant: " + searchResult;
+                    systemPrompt += " Real search result: " + searchResult;
+                }
+                else
+                {
+                    systemPrompt += " No search result was found for this question. Say so honestly instead of making something up, then answer from your own knowledge if you can, being clear it's not from a live search.";
                 }
             }
 
