@@ -46,8 +46,7 @@ namespace RUNE.Views
             get
             {
                 var selected = ModelSelector?.SelectedItem as ComboBoxItem;
-                var name = selected?.Content?.ToString() ?? "Ember";
-                return name.Replace(" (soon)", "");
+                return selected?.Content?.ToString() ?? "Ember";
             }
         }
 
@@ -72,7 +71,7 @@ namespace RUNE.Views
             string reply;
             try
             {
-                reply = await _ai.AskAsync(text);
+                reply = await _ai.AskAsync(text, modelName);
             }
             catch (System.Exception ex)
             {
