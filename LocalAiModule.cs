@@ -39,12 +39,11 @@ namespace RUNE
                 return false;
             }
 
-            // Unload whatever was loaded before to free RAM for the new model.
             _context?.Dispose();
             _model?.Dispose();
             _executor = null;
 
-            var parameters = new ModelParams(path) { ContextSize = 1024 };
+            var parameters = new ModelParams(path) { ContextSize = 1536 };
             _model = LLamaWeights.LoadFromFile(parameters);
             _context = _model.CreateContext(parameters);
             _executor = new InteractiveExecutor(_context);
@@ -52,12 +51,17 @@ namespace RUNE
             return true;
         }
 
-        public async Task<string> AskAsync(string userMessage, string modelName = "Ember")
+        public async Task<string> AskAsync(string userMessage, string modelName = "Ember", bool deepThink = false)
         {
             if (!EnsureLoaded(modelName, out var error))
                 return error;
 
             var systemPrompt = $"You are {modelName}, a helpful assistant. Always reply in English, in a friendly, concise way. Never repeat words or phrases. Never claim you searched the web or found something online unless real search results are given to you below.";
+
+            if (deepThink)
+            {
+                systemPrompt += " Think through this step by step before answering. Put your reasoning inside <thinking></thinking> tags, then put your final answer inside <answer></answer> tags. Keep the reasoning brief - a few short steps, not an essay.";
+            }
 
             if (App.Config.IsModuleEnabled("web-search"))
             {
@@ -82,7 +86,7 @@ namespace RUNE
 
             var inferenceParams = new InferenceParams
             {
-                MaxTokens = 300,
+                MaxTokens = deepThink ? 500 : 300,
                 RepeatPenalty = 1.3f,
                 AntiPrompts = new System.Collections.Generic.List<string> { "<|im_end|>", "<|im_start|>", "You:" }
             };
