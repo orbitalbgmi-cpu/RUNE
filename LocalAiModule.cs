@@ -11,30 +11,53 @@ namespace RUNE
         private LLamaWeights _model;
         private LLamaContext _context;
         private InteractiveExecutor _executor;
-        private bool _isLoaded;
+        private string _loadedModelName;
 
-        private static string ModelPath =>
-            Path.Combine(AppContext.BaseDirectory, "models", "Ember", "qwen2.5-0.5b-instruct-q4_k_m.gguf");
+        private static string ModelFolder(string modelName) =>
+            Path.Combine(AppContext.BaseDirectory, "models", modelName);
 
-        public bool Load()
+        private static string ModelFilePath(string modelName)
         {
-            if (_isLoaded) return true;
-            if (!File.Exists(ModelPath)) return false;
+            var folder = ModelFolder(modelName);
+            if (!Directory.Exists(folder)) return null;
 
-            var parameters = new ModelParams(ModelPath) { ContextSize = 1024 };
+            var files = Directory.GetFiles(folder, "*.gguf");
+            return files.Length > 0 ? files[0] : null;
+        }
+
+        private bool EnsureLoaded(string modelName, out string error)
+        {
+            error = null;
+
+            if (_loadedModelName == modelName && _executor != null)
+                return true;
+
+            var path = ModelFilePath(modelName);
+            if (path == null)
+            {
+                error = $"({modelName} model file not found in models/{modelName}/ - make sure it's copied there)";
+                return false;
+            }
+
+            // Unload whatever was loaded before to free RAM for the new model.
+            _context?.Dispose();
+            _model?.Dispose();
+            _executor = null;
+
+            var parameters = new ModelParams(path) { ContextSize = 1024 };
             _model = LLamaWeights.LoadFromFile(parameters);
             _context = _model.CreateContext(parameters);
             _executor = new InteractiveExecutor(_context);
-            _isLoaded = true;
+            _loadedModelName = modelName;
             return true;
         }
 
-        public async Task<string> AskAsync(string userMessage)
+        public async Task<string> AskAsync(string userMessage, string modelName = "Ember")
         {
-            if (!_isLoaded && !Load())
-                return "(Ember model file not found in models/Ember/ - make sure it's copied there)";
+            if (!EnsureLoaded(modelName, out var error))
+                return error;
 
-            var systemPrompt = "You are Ember, a helpful assistant. Always reply in English, in a friendly, concise way. Never repeat words or phrases. Never claim you searched the web or found something online unless real search results are given to you below.";
+            var systemPrompt = $"You are {modelName}, a helpful assistant. Always reply in English, in a friendly, concise way. Never repeat words or phrases. Never claim you searched the web or found something online unless real search results are given to you below.";
 
             if (App.Config.IsModuleEnabled("web-search"))
             {
