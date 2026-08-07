@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Text.RegularExpressions;
 
 namespace RUNE.Views
 {
@@ -66,12 +67,13 @@ namespace RUNE.Views
             InputBox.Clear();
 
             var modelName = CurrentModelName;
-            AddMessage(modelName, "thinking...");
+            var deepThink = DeepThinkToggle.IsChecked == true;
+            AddMessage(modelName, deepThink ? "thinking carefully..." : "thinking...");
 
             string reply;
             try
             {
-                reply = await _ai.AskAsync(text, modelName);
+                reply = await _ai.AskAsync(text, modelName, deepThink);
             }
             catch (System.Exception ex)
             {
@@ -85,14 +87,40 @@ namespace RUNE.Views
 
         private void AddMessage(string sender, string text)
         {
-            var block = new TextBlock
+            var thinkingMatch = Regex.Match(text, @"<thinking>(.*?)</thinking>\s*<answer>(.*?)</answer>", RegexOptions.Singleline);
+
+            if (thinkingMatch.Success)
+            {
+                var reasoning = thinkingMatch.Groups[1].Value.Trim();
+                var answer = thinkingMatch.Groups[2].Value.Trim();
+
+                MessageList.Children.Add(new TextBlock
+                {
+                    Text = $"{sender} (reasoning): {reasoning}",
+                    TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(0, 0, 0, 4),
+                    FontStyle = FontStyles.Italic,
+                    FontSize = 12,
+                    Foreground = (Brush)FindResource("SecondaryTextBrush")
+                });
+
+                MessageList.Children.Add(new TextBlock
+                {
+                    Text = $"{sender}: {answer}",
+                    TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(0, 0, 0, 10),
+                    Foreground = (Brush)FindResource("PrimaryTextBrush")
+                });
+                return;
+            }
+
+            MessageList.Children.Add(new TextBlock
             {
                 Text = $"{sender}: {text}",
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 10),
                 Foreground = (Brush)FindResource("PrimaryTextBrush")
-            };
-            MessageList.Children.Add(block);
+            });
         }
     }
 }
