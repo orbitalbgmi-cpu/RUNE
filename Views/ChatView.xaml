@@ -27,7 +27,7 @@
 
             <ComboBox x:Name="ModelSelector" Grid.Column="2" Width="140" SelectedIndex="0">
                 <ComboBoxItem Content="Ember" />
-                <ComboBoxItem Content="NOVA (soon)" IsEnabled="False" />
+                <ComboBoxItem Content="NOVA" />
             </ComboBox>
         </Grid>
 
