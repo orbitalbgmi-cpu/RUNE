@@ -1,28 +1,66 @@
-<UserControl x:Class="RUNE.Views.SettingsView"
+<UserControl x:Class="RUNE.Views.ChatView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <StackPanel>
-        <TextBlock Text="Settings" FontSize="20" FontWeight="Bold"
-                   Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,20" />
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-        <TextBlock Text="Theme" FontSize="14" FontWeight="SemiBold"
-                   Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8" />
-        <TextBlock Text="Pick a color theme - applies instantly, no restart needed."
-                   Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"
-                   FontSize="12" Margin="0,0,0,16" />
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
 
-        <ItemsControl x:Name="ThemeList">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <WrapPanel />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-        </ItemsControl>
+            <TextBlock Grid.Column="0" Text="Chat" FontSize="20" FontWeight="Bold"
+                       Foreground="{DynamicResource PrimaryTextBrush}" />
 
-        <TextBlock Text="Modules" FontSize="14" FontWeight="SemiBold"
-                   Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,30,0,8" />
-        <TextBlock Text="More module settings will appear here over time."
-                   Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap" FontSize="12" />
-    </StackPanel>
+            <CheckBox x:Name="DeepThinkToggle" Grid.Column="1" Content="Deep Think"
+                      VerticalAlignment="Center" Margin="0,0,14,0"
+                      Foreground="{DynamicResource SecondaryTextBrush}" />
+
+            <Button Grid.Column="2" Content="New Chat" Click="NewChatButton_Click"
+                    Background="{DynamicResource SurfaceBrush}"
+                    Foreground="{DynamicResource SecondaryTextBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                    Padding="14,8" Margin="0,0,10,0" Cursor="Hand" />
+
+            <ComboBox x:Name="ModelSelector" Grid.Column="3" Width="140" SelectedIndex="0">
+                <ComboBoxItem Content="Ember" />
+                <ComboBoxItem Content="NOVA" />
+            </ComboBox>
+        </Grid>
+
+        <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8">
+            <ScrollViewer Padding="16" VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="MessageList" />
+            </ScrollViewer>
+        </Border>
+
+        <Grid Grid.Row="2" Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Background="{DynamicResource SurfaceBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                    CornerRadius="6" Margin="0,0,10,0">
+                <TextBox x:Name="InputBox" BorderThickness="0" Background="Transparent"
+                         Padding="12,10" FontSize="14" VerticalContentAlignment="Center"
+                         Foreground="{DynamicResource PrimaryTextBrush}"
+                         KeyDown="InputBox_KeyDown" />
+            </Border>
+
+            <Button Grid.Column="1" Content="Send" Click="SendButton_Click"
+                    Background="{DynamicResource AccentBrush}" Foreground="White"
+                    BorderThickness="0" Padding="20,10" FontWeight="SemiBold" Cursor="Hand" />
+        </Grid>
+    </Grid>
 </UserControl>
