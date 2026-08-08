@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using LLama;
 using LLama.Common;
@@ -20,7 +21,6 @@ namespace RUNE
         {
             var folder = ModelFolder(modelName);
             if (!Directory.Exists(folder)) return null;
-
             var files = Directory.GetFiles(folder, "*.gguf");
             return files.Length > 0 ? files[0] : null;
         }
@@ -28,9 +28,7 @@ namespace RUNE
         private bool EnsureLoaded(string modelName, out string error)
         {
             error = null;
-
-            if (_loadedModelName == modelName && _executor != null)
-                return true;
+            if (_loadedModelName == modelName && _executor != null) return true;
 
             var path = ModelFilePath(modelName);
             if (path == null)
@@ -53,6 +51,26 @@ namespace RUNE
 
         public async Task<string> AskAsync(string userMessage, string modelName = "Ember", bool deepThink = false)
         {
+            if (SafetyModule.IsBlocked(userMessage))
+                return SafetyModule.RefusalMessage();
+
+            // Simple direct commands handled without needing the AI model at all - fast and reliable.
+            var lower = userMessage.ToLowerInvariant().Trim();
+            if (lower.Contains("what") && (lower.Contains("open") || lower.Contains("running")) && (lower.Contains("window") || lower.Contains("app") || lower.Contains("screen")))
+            {
+                return "Here's what's currently open:\n" + FileToolModule.GetOpenWindowsList();
+            }
+            if (lower.StartsWith("create a file") || lower.StartsWith("create file") || lower.StartsWith("make a file"))
+            {
+                var match = Regex.Match(userMessage, @"(?:called|named)\s+([^\s]+\.\w+)", RegexOptions.IgnoreCase);
+                var fileName = match.Success ? match.Groups[1].Value : "note.txt";
+                return FileToolModule.CreateFile(fileName, "(created by " + modelName + " via RUNE)");
+            }
+            if (lower.Contains("what files") || lower.Contains("list files") || lower.Contains("list my files"))
+            {
+                return "Files in RUNE-Files:\n" + FileToolModule.ListSandboxFiles();
+            }
+
             if (!EnsureLoaded(modelName, out var error))
                 return error;
 
@@ -60,7 +78,7 @@ namespace RUNE
 
             if (deepThink)
             {
-                systemPrompt += " Think through this step by step before answering. Put your reasoning inside <thinking></thinking> tags, then put your final answer inside <answer></answer> tags. Keep the reasoning brief - a few short steps, not an essay.";
+                systemPrompt += " Think through this step by step before answering. Put your reasoning inside <thinking></thinking> tags, then put your final answer inside <answer></answer> tags. Keep the reasoning brief.";
             }
 
             if (App.Config.IsModuleEnabled("web-search"))
@@ -78,7 +96,7 @@ namespace RUNE
                 }
                 else
                 {
-                    systemPrompt += " No search result was found for this question. Say so honestly instead of making something up, then answer from your own knowledge if you can, being clear it's not from a live search.";
+                    systemPrompt += " No search result was found. Say so honestly, then answer from your own knowledge if you can.";
                 }
             }
 
@@ -87,7 +105,7 @@ namespace RUNE
             var inferenceParams = new InferenceParams
             {
                 MaxTokens = deepThink ? 500 : 300,
-                RepeatPenalty = 1.3f,
+                RepeatPenalty = 1.5f,
                 AntiPrompts = new System.Collections.Generic.List<string> { "<|im_end|>", "<|im_start|>", "You:" }
             };
 
