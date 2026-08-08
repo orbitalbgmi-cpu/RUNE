@@ -14,6 +14,11 @@ namespace RUNE.Views
         public ChatView()
         {
             InitializeComponent();
+            Loaded += (s, e) =>
+            {
+                var palette = RUNE.ThemeManager.Load();
+                RUNE.BackgroundDecor.Apply(ThemeDecoration, palette.Name);
+            };
         }
 
         private void SendButton_Click(object sender, RoutedEventArgs e) => SendMessage();
@@ -114,9 +119,10 @@ namespace RUNE.Views
                 return;
             }
 
+            var fallbackText = Regex.Replace(text, @"</?(thinking|answer)>", "").Trim();
             MessageList.Children.Add(new TextBlock
             {
-                Text = $"{sender}: {text}",
+                Text = $"{sender}: {fallbackText}",
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 10),
                 Foreground = (Brush)FindResource("PrimaryTextBrush")
