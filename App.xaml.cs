@@ -22,27 +22,30 @@ namespace RUNE
             window.Show();
         }
 
-        private void ApplyPalette(ThemePalette palette)
+        public static void ApplyPalette(ThemePalette palette)
         {
-            SetBrush("BackgroundBrush", palette.Background);
-            SetBrush("SurfaceBrush", palette.Surface);
-            SetBrush("PrimaryTextBrush", palette.PrimaryText);
-            SetBrush("SecondaryTextBrush", palette.SecondaryText);
-            SetBrush("AccentBrush", palette.Accent);
-            SetBrush("BorderBrush", palette.Border);
-            SetBrush("SidebarBackgroundBrush", palette.SidebarBackground);
+            var app = Current;
+            SetBrush(app, "BackgroundBrush", palette.Background);
+            SetBrush(app, "SurfaceBrush", palette.Surface);
+            SetBrush(app, "PrimaryTextBrush", palette.PrimaryText);
+            SetBrush(app, "SecondaryTextBrush", palette.SecondaryText);
+            SetBrush(app, "AccentBrush", palette.Accent);
+            SetBrush(app, "BorderBrush", palette.Border);
+            SetBrush(app, "SidebarBackgroundBrush", palette.SidebarBackground);
+
+            ThemeManager.Save(palette);
         }
 
-        private void SetBrush(string resourceKey, string hexColor)
+        private static void SetBrush(Application app, string resourceKey, string hexColor)
         {
             try
             {
                 var color = (Color)ColorConverter.ConvertFromString(hexColor);
-                Resources[resourceKey] = new SolidColorBrush(color);
+                app.Resources[resourceKey] = new SolidColorBrush(color);
             }
             catch
             {
-                // Bad hex value - keep existing default brush.
+                // Bad hex value - keep existing brush.
             }
         }
     }
