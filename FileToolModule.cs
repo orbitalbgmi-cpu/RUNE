@@ -10,6 +10,8 @@ namespace RUNE
     {
         public static event Action<string> ActivityLogged;
 
+        private static readonly string[] AllowedExtensions = { ".txt", ".md", ".json", ".csv", ".log" };
+
         private static string SandboxFolder =>
             Path.Combine(AppContext.BaseDirectory, "RUNE-Files");
 
@@ -44,15 +46,21 @@ namespace RUNE
                 return SafetyModule.RefusalMessage();
             }
 
+            var safeName = Path.GetFileName(fileName);
+            var ext = Path.GetExtension(safeName).ToLowerInvariant();
+
+            if (!AllowedExtensions.Contains(ext))
+            {
+                Log("Blocked disallowed file type: " + ext);
+                return $"I can only create these file types: {string.Join(", ", AllowedExtensions)}. Not {ext}.";
+            }
+
             try
             {
                 if (!Directory.Exists(SandboxFolder))
                     Directory.CreateDirectory(SandboxFolder);
 
-                // Prevent escaping the sandbox folder (no "..", no absolute paths).
-                var safeName = Path.GetFileName(fileName);
                 var fullPath = Path.Combine(SandboxFolder, safeName);
-
                 File.WriteAllText(fullPath, content);
                 Log("Created file: " + safeName);
                 return $"Created {safeName} inside the RUNE-Files folder.";
