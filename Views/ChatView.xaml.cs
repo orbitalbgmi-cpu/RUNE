@@ -87,7 +87,7 @@ namespace RUNE.Views
 
         private void AddMessage(string sender, string text)
         {
-            var thinkingMatch = Regex.Match(text, @"<thinking>(.*?)</thinking>\s*<answer>(.*?)</answer>", RegexOptions.Singleline);
+            var thinkingMatch = Regex.Match(text, @"<thinking>(.*?)</?thinking>\s*<answer>(.*?)</?answer>", RegexOptions.Singleline);
 
             if (thinkingMatch.Success)
             {
