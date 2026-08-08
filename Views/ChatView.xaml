@@ -37,10 +37,14 @@
         </Grid>
 
         <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}"
-                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8">
-            <ScrollViewer Padding="16" VerticalScrollBarVisibility="Auto">
-                <StackPanel x:Name="MessageList" />
-            </ScrollViewer>
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8"
+                ClipToBounds="True">
+            <Grid>
+                <Grid x:Name="ThemeDecoration" IsHitTestVisible="False" />
+                <ScrollViewer Padding="16" VerticalScrollBarVisibility="Auto" Background="Transparent">
+                    <StackPanel x:Name="MessageList" />
+                </ScrollViewer>
+            </Grid>
         </Border>
 
         <Grid Grid.Row="2" Margin="0,16,0,0">
