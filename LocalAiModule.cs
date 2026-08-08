@@ -14,6 +14,8 @@ namespace RUNE
         private InteractiveExecutor _executor;
         private string _loadedModelName;
 
+        private const string OwnerName = "Onyx";
+
         private static string ModelFolder(string modelName) =>
             Path.Combine(AppContext.BaseDirectory, "models", modelName);
 
@@ -41,7 +43,11 @@ namespace RUNE
             _model?.Dispose();
             _executor = null;
 
-            var parameters = new ModelParams(path) { ContextSize = 1536 };
+            var parameters = new ModelParams(path)
+            {
+                ContextSize = 1536,
+                Threads = 4
+            };
             _model = LLamaWeights.LoadFromFile(parameters);
             _context = _model.CreateContext(parameters);
             _executor = new InteractiveExecutor(_context);
@@ -54,7 +60,6 @@ namespace RUNE
             if (SafetyModule.IsBlocked(userMessage))
                 return SafetyModule.RefusalMessage();
 
-            // Simple direct commands handled without needing the AI model at all - fast and reliable.
             var lower = userMessage.ToLowerInvariant().Trim();
             if (lower.Contains("what") && (lower.Contains("open") || lower.Contains("running")) && (lower.Contains("window") || lower.Contains("app") || lower.Contains("screen")))
             {
@@ -70,15 +75,19 @@ namespace RUNE
             {
                 return "Files in RUNE-Files:\n" + FileToolModule.ListSandboxFiles();
             }
+            if (lower.Contains("who made you") || lower.Contains("who created you") || lower.Contains("who built you") || lower.Contains("who is your creator"))
+            {
+                return $"I was created by {OwnerName}, as part of the RUNE project.";
+            }
 
             if (!EnsureLoaded(modelName, out var error))
                 return error;
 
-            var systemPrompt = $"You are {modelName}, a helpful assistant. Always reply in English, in a friendly, concise way. Never repeat words or phrases. Never claim you searched the web or found something online unless real search results are given to you below.";
+            var systemPrompt = $"You are {modelName}, a helpful assistant created by {OwnerName} as part of the RUNE project. Always reply in English, in a friendly, concise way. Never repeat words or phrases. Never claim you searched the web or found something online unless real search results are given to you below. If asked who made you, say {OwnerName}.";
 
             if (deepThink)
             {
-                systemPrompt += " Think through this step by step before answering. Put your reasoning inside <thinking></thinking> tags, then put your final answer inside <answer></answer> tags. Keep the reasoning brief.";
+                systemPrompt += " Think through this step by step before answering. Put your reasoning inside <thinking></thinking> tags, then your final answer inside <answer></answer> tags. Keep the reasoning brief.";
             }
 
             if (App.Config.IsModuleEnabled("web-search"))
