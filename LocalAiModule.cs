@@ -61,20 +61,33 @@ namespace RUNE
                 return SafetyModule.RefusalMessage();
 
             var lower = userMessage.ToLowerInvariant().Trim();
+
             if (lower.Contains("what") && (lower.Contains("open") || lower.Contains("running")) && (lower.Contains("window") || lower.Contains("app") || lower.Contains("screen")))
             {
                 return "Here's what's currently open:\n" + FileToolModule.GetOpenWindowsList();
             }
-            if (lower.StartsWith("create a file") || lower.StartsWith("create file") || lower.StartsWith("make a file"))
+
+            if (lower.Contains("zip") || lower.Contains(" mod") || lower.Contains("compress") || lower.Contains("minecraft"))
             {
-                var match = Regex.Match(userMessage, @"(?:called|named)\s+([^\s]+\.\w+)", RegexOptions.IgnoreCase);
-                var fileName = match.Success ? match.Groups[1].Value : "note.txt";
-                return FileToolModule.CreateFile(fileName, "(created by " + modelName + " via RUNE)");
+                if (lower.Contains("create") || lower.Contains("make") || lower.Contains("convert"))
+                {
+                    return "I can only create a single plain text-type file (like .txt, .md, .json, .csv, .log) inside the RUNE-Files folder - I can't build zip archives, Minecraft mods, or compiled programs. Want me to create a text file instead?";
+                }
             }
+
+            if (lower.Contains("create") && lower.Contains("file") || lower.Contains("make") && lower.Contains("file"))
+            {
+                var extMatch = Regex.Match(userMessage, @"[a-zA-Z0-9_\-]+\.[a-zA-Z]{1,5}");
+                var fileName = extMatch.Success ? extMatch.Value : "note.txt";
+                var content = "(created by " + modelName + " via RUNE)";
+                return FileToolModule.CreateFile(fileName, content);
+            }
+
             if (lower.Contains("what files") || lower.Contains("list files") || lower.Contains("list my files"))
             {
                 return "Files in RUNE-Files:\n" + FileToolModule.ListSandboxFiles();
             }
+
             if (lower.Contains("who made you") || lower.Contains("who created you") || lower.Contains("who built you") || lower.Contains("who is your creator"))
             {
                 return $"I was created by {OwnerName}, as part of the RUNE project.";
@@ -83,7 +96,7 @@ namespace RUNE
             if (!EnsureLoaded(modelName, out var error))
                 return error;
 
-            var systemPrompt = $"You are {modelName}, a helpful assistant created by {OwnerName} as part of the RUNE project. Always reply in English, in a friendly, concise way. Never repeat words or phrases. Never claim you searched the web or found something online unless real search results are given to you below. If asked who made you, say {OwnerName}.";
+            var systemPrompt = $"You are {modelName}, a helpful assistant created by {OwnerName} as part of the RUNE project. Always reply in English, in a friendly, concise way. Never repeat words or phrases. Never claim you searched the web or found something online unless real search results are given to you below. If asked who made you, say {OwnerName}. You cannot create zip files, mods, or compiled programs - only plain text files.";
 
             if (deepThink)
             {
