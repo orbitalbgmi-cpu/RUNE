@@ -14,11 +14,6 @@ namespace RUNE.Views
         public ChatView()
         {
             InitializeComponent();
-            Loaded += (s, e) =>
-            {
-                var palette = RUNE.ThemeManager.Load();
-                RUNE.BackgroundDecor.Apply(ThemeDecoration, palette.Name);
-            };
         }
 
         private void SendButton_Click(object sender, RoutedEventArgs e) => SendMessage();
