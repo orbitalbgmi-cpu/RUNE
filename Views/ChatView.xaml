@@ -40,10 +40,26 @@
                 BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8"
                 ClipToBounds="True">
             <Grid>
-                <Grid x:Name="ThemeDecoration" IsHitTestVisible="False" />
-                <ScrollViewer Padding="16" VerticalScrollBarVisibility="Auto" Background="Transparent">
+                <ScrollViewer Padding="16" VerticalScrollBarVisibility="Auto">
                     <StackPanel x:Name="MessageList" />
                 </ScrollViewer>
+
+                <!-- Small black-hole graphic, fixed to the bottom-right corner, subtle and out of the way -->
+                <Grid HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                      Width="70" Height="70" Margin="0,0,14,14"
+                      IsHitTestVisible="False" Opacity="0.55">
+                    <Ellipse Width="70" Height="70">
+                        <Ellipse.Fill>
+                            <RadialGradientBrush>
+                                <GradientStop Color="#553B82F6" Offset="0.0" />
+                                <GradientStop Color="#33A855F7" Offset="0.55" />
+                                <GradientStop Color="#00000000" Offset="1.0" />
+                            </RadialGradientBrush>
+                        </Ellipse.Fill>
+                    </Ellipse>
+                    <Ellipse Width="46" Height="46" Stroke="#66E8E3FF" StrokeThickness="1.2" />
+                    <Ellipse Width="18" Height="18" Fill="Black" />
+                </Grid>
             </Grid>
         </Border>
 
