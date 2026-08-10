@@ -23,6 +23,22 @@ namespace RUNE.Views
             if (e.Key == Key.Enter) SendMessage();
         }
 
+        private async void MicButton_Click(object sender, RoutedEventArgs e)
+        {
+            MicButton.Content = "Listening...";
+            MicButton.IsEnabled = false;
+
+            var heard = await RUNE.VoiceModule.ListenOnceAsync();
+
+            MicButton.Content = "Mic";
+            MicButton.IsEnabled = true;
+
+            if (!string.IsNullOrWhiteSpace(heard))
+            {
+                InputBox.Text = heard;
+            }
+        }
+
         private void NewChatButton_Click(object sender, RoutedEventArgs e)
         {
             _currentSessionId = null;
@@ -83,6 +99,13 @@ namespace RUNE.Views
             MessageList.Children.RemoveAt(MessageList.Children.Count - 1);
             AddMessage(modelName, reply);
             RUNE.HistoryStore.AppendMessage(_currentSessionId, modelName, reply);
+
+            if (SpeakToggle.IsChecked == true)
+            {
+                var spoken = Regex.Replace(reply, @"</?(thinking|answer)>", "");
+                spoken = Regex.Replace(spoken, @"\[used live web search\]|\[no web search result used.*?\]", "");
+                RUNE.VoiceModule.Speak(spoken.Trim());
+            }
         }
 
         private void AddMessage(string sender, string text)
