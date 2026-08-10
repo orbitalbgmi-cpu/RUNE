@@ -15,22 +15,27 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <TextBlock Grid.Column="0" Text="Chat" FontSize="20" FontWeight="Bold"
                        Foreground="{DynamicResource PrimaryTextBrush}" />
 
             <CheckBox x:Name="DeepThinkToggle" Grid.Column="1" Content="Deep Think"
+                      VerticalAlignment="Center" Margin="0,0,10,0"
+                      Foreground="{DynamicResource SecondaryTextBrush}" />
+
+            <CheckBox x:Name="SpeakToggle" Grid.Column="2" Content="Speak replies"
                       VerticalAlignment="Center" Margin="0,0,14,0"
                       Foreground="{DynamicResource SecondaryTextBrush}" />
 
-            <Button Grid.Column="2" Content="New Chat" Click="NewChatButton_Click"
+            <Button Grid.Column="3" Content="New Chat" Click="NewChatButton_Click"
                     Background="{DynamicResource SurfaceBrush}"
                     Foreground="{DynamicResource SecondaryTextBrush}"
                     BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                     Padding="14,8" Margin="0,0,10,0" Cursor="Hand" />
 
-            <ComboBox x:Name="ModelSelector" Grid.Column="3" Width="140" SelectedIndex="0">
+            <ComboBox x:Name="ModelSelector" Grid.Column="4" Width="140" SelectedIndex="0">
                 <ComboBoxItem Content="Ember" />
                 <ComboBoxItem Content="NOVA" />
             </ComboBox>
@@ -44,7 +49,6 @@
                     <StackPanel x:Name="MessageList" />
                 </ScrollViewer>
 
-                <!-- Small black-hole graphic, fixed to the bottom-right corner, subtle and out of the way -->
                 <Grid HorizontalAlignment="Right" VerticalAlignment="Bottom"
                       Width="70" Height="70" Margin="0,0,14,14"
                       IsHitTestVisible="False" Opacity="0.55">
@@ -67,6 +71,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <Border Grid.Column="0" Background="{DynamicResource SurfaceBrush}"
@@ -78,7 +83,12 @@
                          KeyDown="InputBox_KeyDown" />
             </Border>
 
-            <Button Grid.Column="1" Content="Send" Click="SendButton_Click"
+            <Button x:Name="MicButton" Grid.Column="1" Content="Mic" Click="MicButton_Click"
+                    Background="{DynamicResource SurfaceBrush}" Foreground="{DynamicResource SecondaryTextBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                    Padding="16,10" Margin="0,0,10,0" Cursor="Hand" />
+
+            <Button Grid.Column="2" Content="Send" Click="SendButton_Click"
                     Background="{DynamicResource AccentBrush}" Foreground="White"
                     BorderThickness="0" Padding="20,10" FontWeight="SemiBold" Cursor="Hand" />
         </Grid>
