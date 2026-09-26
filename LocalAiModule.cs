@@ -94,21 +94,24 @@ namespace RUNE
                 }
             }
 
-            // Fix #1: file creation now actually asks the model to generate real content,
-            // instead of writing a placeholder line.
+            // --- FIXED FILE CREATION LOGIC ---
             if ((lower.Contains("create") || lower.Contains("make")) && lower.Contains("file"))
             {
+                // 1. Extract the filename from the user's request
                 var extMatch = Regex.Match(userMessage, @"[a-zA-Z0-9_\-]+\.[a-zA-Z]{1,5}");
                 var fileName = extMatch.Success ? extMatch.Value : "note.txt";
 
-                var contentPrompt = $"<|im_start|>system\nYou write plain text file content only, no explanations, no markdown fences.<|im_end|>\n<|im_start|>user\n{userMessage}<|im_end|>\n<|im_start|>assistant\n";
-                var generatedContent = await GenerateRawAsync(modelName, contentPrompt, 300);
+                // 2. Explicitly instruct the AI to ONLY generate the content, not talk about the file.
+                var contentPrompt = $"<|im_start|>system\nYou are a file content generator. The user wants to create a file named '{fileName}'. Write ONLY the content that should go inside this file. Do not write any explanations, greetings, or markdown fences. Do not mention the file name. Just the raw content.<|im_end|>\n<|im_start|>user\n{userMessage}<|im_end|>\n<|im_start|>assistant\n";
+                
+                var generatedContent = await GenerateRawAsync(modelName, contentPrompt, 500);
 
                 if (string.IsNullOrWhiteSpace(generatedContent))
-                    generatedContent = "(no content was generated)";
+                    generatedContent = "(The AI could not generate content for this file.)";
 
                 return FileToolModule.CreateFile(fileName, generatedContent);
             }
+            // ---------------------------------
 
             if (lower.Contains("what files") || lower.Contains("list files") || lower.Contains("list my files"))
             {
@@ -127,7 +130,6 @@ namespace RUNE
                 systemPrompt += " Think through this step by step before answering. Put your reasoning inside <thinking></thinking> tags, then your final answer inside <answer></answer> tags. Keep the reasoning brief.";
             }
 
-            // Fix #3: clearly mark in the reply whether a real search actually happened.
             var searchUsed = false;
             if (App.Config.IsModuleEnabled("web-search"))
             {
