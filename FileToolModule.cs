@@ -82,8 +82,8 @@ namespace RUNE
 
             try
             {
-                var targetDir = string.IsNullOrEmpty(safeFolder) 
-                    ? SandboxFolder 
+                var targetDir = string.IsNullOrEmpty(safeFolder)
+                    ? SandboxFolder
                     : Path.Combine(SandboxFolder, SanitizePath(safeFolder));
 
                 if (!Directory.Exists(targetDir))
@@ -91,7 +91,7 @@ namespace RUNE
 
                 var fullPath = Path.Combine(targetDir, safeName);
                 var formattedContent = FormatContent(content);
-                
+
                 File.WriteAllText(fullPath, formattedContent);
                 Log("Created file: " + safeName);
                 return $"Created {safeName} inside the RUNE-Files folder.";
