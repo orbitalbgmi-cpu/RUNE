@@ -38,7 +38,7 @@
                 <StackPanel DockPanel.Dock="Bottom" Margin="10,0">
                     <Button x:Name="NavAboutButton" Content="About" Click="NavAboutButton_Click"
                             Style="{StaticResource NavButtonStyle}" />
-                    <TextBlock Text="v0.1 - Step 2: Ember Online" FontSize="10" Margin="16,10,0,0"
+                    <TextBlock Text="v3.0" FontSize="10" Margin="16,10,0,0"
                                Foreground="{DynamicResource SecondaryTextBrush}" />
                 </StackPanel>
 
