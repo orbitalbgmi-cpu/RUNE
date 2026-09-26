@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace RUNE
 {
@@ -10,7 +11,8 @@ namespace RUNE
     {
         public static event Action<string> ActivityLogged;
 
-        private static readonly string[] AllowedExtensions = { ".txt", ".md", ".json", ".csv", ".log" };
+        // Expanded allowlist
+        private static readonly string[] AllowedExtensions = { ".txt", ".md", ".json", ".csv", ".log", ".html", ".css", ".xml" };
 
         private static string SandboxFolder =>
             Path.Combine(AppContext.BaseDirectory, "RUNE-Files");
@@ -38,6 +40,28 @@ namespace RUNE
             }
         }
 
+        public static string CreateFolder(string folderName)
+        {
+            try
+            {
+                var safeFolder = SanitizePath(folderName);
+                var fullPath = Path.Combine(SandboxFolder, safeFolder);
+
+                if (!Directory.Exists(fullPath))
+                {
+                    Directory.CreateDirectory(fullPath);
+                    Log("Created folder: " + safeFolder);
+                    return $"Created folder '{safeFolder}' inside RUNE-Files.";
+                }
+                return $"Folder '{safeFolder}' already exists.";
+            }
+            catch (Exception ex)
+            {
+                Log("Folder creation failed: " + ex.Message);
+                return "Couldn't create that folder: " + ex.Message;
+            }
+        }
+
         public static string CreateFile(string fileName, string content)
         {
             if (SafetyModule.IsBlocked(fileName) || SafetyModule.IsBlocked(content))
@@ -47,6 +71,7 @@ namespace RUNE
             }
 
             var safeName = Path.GetFileName(fileName);
+            var safeFolder = Path.GetDirectoryName(fileName);
             var ext = Path.GetExtension(safeName).ToLowerInvariant();
 
             if (!AllowedExtensions.Contains(ext))
@@ -57,11 +82,17 @@ namespace RUNE
 
             try
             {
-                if (!Directory.Exists(SandboxFolder))
-                    Directory.CreateDirectory(SandboxFolder);
+                var targetDir = string.IsNullOrEmpty(safeFolder) 
+                    ? SandboxFolder 
+                    : Path.Combine(SandboxFolder, SanitizePath(safeFolder));
 
-                var fullPath = Path.Combine(SandboxFolder, safeName);
-                File.WriteAllText(fullPath, content);
+                if (!Directory.Exists(targetDir))
+                    Directory.CreateDirectory(targetDir);
+
+                var fullPath = Path.Combine(targetDir, safeName);
+                var formattedContent = FormatContent(content);
+                
+                File.WriteAllText(fullPath, formattedContent);
                 Log("Created file: " + safeName);
                 return $"Created {safeName} inside the RUNE-Files folder.";
             }
@@ -79,7 +110,8 @@ namespace RUNE
                 if (!Directory.Exists(SandboxFolder))
                     return "(RUNE-Files folder is empty or doesn't exist yet)";
 
-                var files = Directory.GetFiles(SandboxFolder).Select(Path.GetFileName);
+                var files = Directory.GetFiles(SandboxFolder, "*", SearchOption.AllDirectories)
+                    .Select(f => f.Replace(SandboxFolder + "\\", ""));
                 var list = string.Join("\n", files);
                 Log("Listed sandbox files");
                 return string.IsNullOrEmpty(list) ? "(no files yet)" : list;
@@ -88,6 +120,28 @@ namespace RUNE
             {
                 return "Couldn't list files: " + ex.Message;
             }
+        }
+
+        private static string SanitizePath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path)) return "";
+            var invalidChars = Path.GetInvalidPathChars();
+            var clean = new string(path.Where(c => !invalidChars.Contains(c)).ToArray());
+            return clean.Replace("..", "").Trim('\\', '/');
+        }
+
+        private static string FormatContent(string content)
+        {
+            if (string.IsNullOrEmpty(content)) return content;
+
+            // Fix AI mistake: replace literal \n with actual newlines
+            content = content.Replace("\\n", Environment.NewLine);
+
+            // Remove markdown code fences if AI slipped them in
+            content = Regex.Replace(content, @"^```[a-zA-Z]*\r?\n?", "", RegexOptions.Multiline);
+            content = Regex.Replace(content, @"\r?\n?```$", "", RegexOptions.Multiline);
+
+            return content.Trim();
         }
 
         private static void Log(string message)
