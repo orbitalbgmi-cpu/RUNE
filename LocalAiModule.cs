@@ -62,6 +62,7 @@ namespace RUNE
             var inferenceParams = new InferenceParams
             {
                 MaxTokens = maxTokens,
+                Temperature = 0.3f,
                 RepeatPenalty = 1.5f,
                 AntiPrompts = new System.Collections.Generic.List<string> { "<|im_end|>", "<|im_start|>", "You:" }
             };
@@ -102,8 +103,8 @@ namespace RUNE
                 var fileName = extMatch.Success ? extMatch.Value : "note.txt";
 
                 // 2. Explicitly instruct the AI to ONLY generate the content, not talk about the file.
-                var contentPrompt = $"<|im_start|>system\nYou are a file content generator. The user wants to create a file named '{fileName}'. Write ONLY the content that should go inside this file. Do not write any explanations, greetings, or markdown fences. Do not mention the file name. Just the raw content.<|im_end|>\n<|im_start|>user\n{userMessage}<|im_end|>\n<|im_start|>assistant\n";
-                
+                var contentPrompt = $"<|im_start|>system\nYou are a file content generator. The user wants to create a file named '{fileName}'. Write ONLY the content that should go inside this file. Format the text beautifully with paragraphs, bullet points, and proper spacing. Use actual line breaks (press Enter), never write the characters \\n. Do not write any explanations, greetings, or markdown fences. Do not mention the file name. Just the raw content.<|im_end|>\n<|im_start|>user\n{userMessage}<|im_end|>\n<|im_start|>assistant\n";
+
                 var generatedContent = await GenerateRawAsync(modelName, contentPrompt, 500);
 
                 if (string.IsNullOrWhiteSpace(generatedContent))
@@ -123,7 +124,17 @@ namespace RUNE
                 return $"I was created by {OwnerName}, as part of the RUNE project.";
             }
 
-            var systemPrompt = $"You are {modelName}, a helpful assistant created by {OwnerName} as part of the RUNE project. Always reply in English, in a friendly, concise way. Never repeat words or phrases. Never claim you searched the web or found something online unless real search results are given to you below. If asked who made you, say {OwnerName}. You cannot create zip files, mods, or compiled programs - only plain text files.";
+            // --- STRICTER SYSTEM PROMPT ---
+            var systemPrompt = $"You are {modelName}, a helpful assistant created by {OwnerName} as part of the RUNE project. " +
+                "STRICT RULES:\n" +
+                "1. Always reply in English, be concise and factual.\n" +
+                "2. Never make up facts, dates, numbers, names, or events. If you are not sure, say 'I am not sure' or 'I do not know'.\n" +
+                "3. If search results are provided, use ONLY that information. Do not add extra facts from your own knowledge.\n" +
+                "4. Never claim you searched the web unless search results are literally shown to you below.\n" +
+                "5. Never repeat words or phrases.\n" +
+                "6. Do not invent fake tables, fake weather data, or fake statistics.\n" +
+                $"7. If asked who made you, say {OwnerName}.\n" +
+                "8. You can only create plain text files (.txt, .md, .json, .csv, .log, .html, .css, .xml, .exe). You cannot create zips, mods, or compiled programs.";
 
             if (deepThink)
             {
